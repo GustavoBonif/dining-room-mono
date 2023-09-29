@@ -1,7 +1,5 @@
 package com.app.diningroom.services;
 
-
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +13,6 @@ public class ClientService {
     @Autowired
     private ClientRepository repository;
 
-    @Transactional(readonly = true)
     public ClientDTO findById(Long id) {
 
         Client entity = repository.findById(id).get();
