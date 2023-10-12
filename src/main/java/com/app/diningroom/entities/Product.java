@@ -14,10 +14,21 @@ public class Product {
 
     @Column(nullable = false)
     private String name;
-    @Column(nullable = false)
     private String description;
     @Column(nullable = false)
     private BigDecimal price;
+
+    @ManyToOne
+    @JoinColumn(name = "brand_id")
+    private Brand brand;
+
+    public Brand getBrand() {
+        return brand;
+    }
+
+    public void setBrand(Brand brand) {
+        this.brand = brand;
+    }
 
     public Long getId() {
         return id;

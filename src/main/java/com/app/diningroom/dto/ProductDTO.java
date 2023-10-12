@@ -1,8 +1,8 @@
 package com.app.diningroom.dto;
 
-import com.app.diningroom.entities.Product;
-
 import java.math.BigDecimal;
+
+import com.app.diningroom.entities.Product;
 
 public class ProductDTO {
 
@@ -10,12 +10,14 @@ public class ProductDTO {
     private String name;
     private String description;
     private BigDecimal price;
+    private Long brand_id;
 
-    public ProductDTO(Long id, String name, String description, BigDecimal price) {
+    public ProductDTO(Long id, String name, String description, BigDecimal price, Long brand_id) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
+        this.brand_id = brand_id;
     }
 
     public ProductDTO(Product product) {
@@ -23,6 +25,7 @@ public class ProductDTO {
         this.name = product.getName();
         this.description = product.getDescription();
         this.price = product.getPrice();
+        this.brand_id = product.getBrand().getId();
     }
 
     public Long getId() {
@@ -55,5 +58,13 @@ public class ProductDTO {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public Long getBrand_id() {
+        return brand_id;
+    }
+
+    public void setBrand_id(Long brand_id) {
+        this.brand_id = brand_id;
     }
 }

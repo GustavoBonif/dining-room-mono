@@ -2,6 +2,8 @@ package com.app.diningroom.entities;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "brand")
 public class Brand {
@@ -12,6 +14,9 @@ public class Brand {
 
     @Column(nullable = false)
     private String name;
+
+    @OneToMany(mappedBy = "brand")
+    private List<Product> products;
 
     public Long getId() {
         return id;

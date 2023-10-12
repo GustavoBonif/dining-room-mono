@@ -1,9 +1,5 @@
 package com.app.diningroom.services;
 
-import com.app.diningroom.dto.BrandDTO;
-import com.app.diningroom.entities.Brand;
-import com.app.diningroom.repositories.BrandRepository;
-
 import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +7,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.app.diningroom.dto.BrandDTO;
+import com.app.diningroom.entities.Brand;
+import com.app.diningroom.repositories.BrandRepository;
 
 @Service
 public class BrandService {
@@ -67,6 +67,11 @@ public class BrandService {
         return brands.stream()
                 .map(this::brandToBrandDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public Brand findRepositoryById (Long id) {
+        return repository.findById(id).get();
     }
 
     private BrandDTO brandToBrandDTO(Brand brand) {
