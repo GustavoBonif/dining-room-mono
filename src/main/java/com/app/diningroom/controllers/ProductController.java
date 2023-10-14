@@ -50,15 +50,21 @@ public class ProductController {
         return service.findAll();
     }
 
-    @PatchMapping(value = "/{brandId}")
-    public ResponseEntity<String> updateProduct(@PathVariable Long brandId, @RequestBody ProductDTO productDTO) {
+    @PatchMapping(value = "/{productId}")
+    public ResponseEntity<String> updateProduct(@PathVariable Long productId, @RequestBody ProductDTO productDTO) {
         try {
-            ProductDTO productUpdatedDTO = service.updateProduct(brandId, productDTO);
+            ProductDTO productUpdatedDTO = service.updateProduct(productId, productDTO);
             return new ResponseEntity<>("Produto atualizado com sucesso. ID: " + productUpdatedDTO.getId(), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>("Erro ao atualizar produto: " + e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>("Erro ao atualizar produto: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping(value = "/listByBrand/{brandId}")
+    public ResponseEntity<List<ProductDTO>> listProductsByBrand(@PathVariable Long brandId) {
+        List<ProductDTO> productsDTO = service.listProductsByBrand(brandId);
+        return new ResponseEntity<>(productsDTO, HttpStatus.OK);
     }
 }

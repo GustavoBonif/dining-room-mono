@@ -82,6 +82,17 @@ public class ProductService {
         productRepository.deleteById(productDTO.getId());
     }
 
+    @Transactional
+    public List<ProductDTO> listProductsByBrand(Long brandId) {
+
+        Brand brand = brandService.findRepositoryById(brandId);
+        List<Product> brands = productRepository.findByBrand(brand);
+
+        return brands.stream()
+                .map(this::productToProductDTO)
+                .collect(Collectors.toList());
+    }
+
     private void checkEmptyRequiredFields(ProductDTO productDTO) {
        if (productDTO.getName() == null || productDTO.getName().isEmpty()) {
            throw new IllegalArgumentException("O campo 'nome' deve ser preenchido.");
