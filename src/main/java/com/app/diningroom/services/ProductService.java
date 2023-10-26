@@ -34,6 +34,11 @@ public class ProductService {
     }
 
     @Transactional
+    public Product findEntityById(Long id) {
+        return productRepository.findById(id).get();
+    }
+
+    @Transactional
     public ProductDTO create(ProductDTO productDTO) {
         this.checkEmptyRequiredFields(productDTO);
 
@@ -123,6 +128,11 @@ public class ProductService {
 
     private ProductDTO productToProductDTO(Product product) {
         return new ProductDTO(product);
+    }
+
+    @Transactional
+    public boolean existsById(Long id) {
+        return productRepository.existsById(id);
     }
 
 }
