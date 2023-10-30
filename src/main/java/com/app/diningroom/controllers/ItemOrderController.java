@@ -1,6 +1,7 @@
 package com.app.diningroom.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +26,14 @@ public class ItemOrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ItemOrderDTO> findById(@PathVariable Long id) {
-        return service.findById(id);
+    public ResponseEntity<?> findById(@PathVariable Long id) {
+        ResponseEntity<ItemOrderDTO> response = service.findById(id);
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return response;
+        } else {
+            return ResponseEntity.status(response.getStatusCode()).body("Registro não encontrado");
+        }
     }
 
     @PostMapping

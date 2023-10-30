@@ -23,6 +23,18 @@ public class ItemOrder {
 
     private BigDecimal subTotalPrice;
 
+    public ItemOrder(Long id, Product product, int quantity, BigDecimal unitPrice, BigDecimal subTotalPrice) {
+        this.id = id;
+        this.product = product;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+        this.subTotalPrice = subTotalPrice;
+    }
+
+    public ItemOrder() {
+
+    }
+
     public Long getId() {
         return id;
     }
@@ -63,7 +75,9 @@ public class ItemOrder {
         this.subTotalPrice = subTotalPrice;
     }
 
-    public BigDecimal calculateSubTotalPrice() {
-        return this.unitPrice.multiply(BigDecimal.valueOf(this.quantity));
+    public void calculateSubTotalPrice() {
+        BigDecimal subTotalPrice = this.unitPrice.multiply(BigDecimal.valueOf(this.quantity));
+
+        this.setSubTotalPrice(subTotalPrice);
     }
 }

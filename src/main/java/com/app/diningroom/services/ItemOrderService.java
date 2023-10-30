@@ -1,6 +1,5 @@
 package com.app.diningroom.services;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
@@ -27,20 +26,22 @@ public class ItemOrderService {
 
     @Autowired
     private ItemOrderRepository repository;
+    @Autowired
     private ProductService productService;
 
-
     public ResponseEntity<ItemOrderDTO> findById(Long id) {
-        if(!this.repository.existsById(id)) {
-            throw new EntityNotFoundException("Item do Pedido " + id + " não encontrado.");
-        }
+        Optional<ItemOrder> optionalItemOrder = repository.findById(id);
 
-        ItemOrder entity = repository.findById(id).get();
-        ItemOrderDTO dto = new ItemOrderDTO(entity);
-        return new ResponseEntity<>(dto, HttpStatus.OK);
+        if (optionalItemOrder.isPresent()) {
+            ItemOrder entity = optionalItemOrder.get();
+            ItemOrderDTO dto = new ItemOrderDTO(entity);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
-    public List<ItemOrderDTO> listAll() {
+    public List<ItemOrderDTO>  listAll() {
         List<ItemOrder> itemOrders = this.repository.findAll();
         return itemOrders.stream()
                 .map(this::itemOrderToItemOrderDTO)
@@ -49,11 +50,16 @@ public class ItemOrderService {
 
     @Transactional
     public ResponseEntity<String> create(ItemOrderDTO itemOrderDTO) {
+
+        if(!this.productService.existsById(itemOrderDTO.getProduct_id())) {
+            return new ResponseEntity<>("Produto de ID " + itemOrderDTO.getProduct_id() + " não encontrado.", HttpStatus.NOT_FOUND);
+        }
+
         Product product = productService.findEntityById(itemOrderDTO.getProduct_id());
 
         ItemOrder newItemOrder = new ItemOrder();
-        newItemOrder.setProduct(product);
         newItemOrder.setQuantity(itemOrderDTO.getQuantity());
+        newItemOrder.setProduct(product);
         newItemOrder.setUnitPrice(product.getPrice());
 
         newItemOrder.calculateSubTotalPrice();
@@ -62,7 +68,7 @@ public class ItemOrderService {
 //        Order order = orderService.findOrderById(1L);
 //        newItemOrder.setOrder(order);
 
-        this.repository.save(newItemOrder);
+        repository.save(newItemOrder);
 
         return new ResponseEntity<>("Estoque criado com sucesso.", HttpStatus.CREATED);
     }
@@ -70,13 +76,36 @@ public class ItemOrderService {
     @Transactional
     public ResponseEntity<String> update(Long id, ItemOrderDTO itemOrderDTO) {
         if(!this.repository.existsById(id)) {
-            throw new EntityNotFoundException("Item do Pedido " + id + " não encontrado.");
+            return new ResponseEntity<>("Item do Pedido " + id + " não encontrado.", HttpStatus.NOT_FOUND);
+        }
+
+        if(itemOrderDTO.getProduct_id() != null && !this.productService.existsById(itemOrderDTO.getProduct_id())) {
+            return new ResponseEntity<>("Produto de ID " + itemOrderDTO.getProduct_id() + " não encontrado.", HttpStatus.NOT_FOUND);
+        }
+
+        if(itemOrderDTO.getSubTotalPrice() != null) {
+            return new ResponseEntity<>("Informe o preço unitário ou a quantidade para mudar o preço subtotal!", HttpStatus.FORBIDDEN);
+        }
+
+        if(itemOrderDTO.getUnitPrice() != null) {
+            return new ResponseEntity<>("Preço unitário é indicado no Produto!", HttpStatus.FORBIDDEN);
         }
 
         ItemOrder itemOrderToUpdate = this.repository.findById(id).get();
 
         BeanUtils.copyProperties(itemOrderDTO, itemOrderToUpdate, this.getNullPropertyNames(itemOrderDTO));
 
+        if(itemOrderDTO.getProduct_id() != null) {
+            Product product = productService.findEntityById(itemOrderDTO.getProduct_id());
+            itemOrderToUpdate.setProduct(product);
+            itemOrderToUpdate.setUnitPrice(product.getPrice());
+
+            if(itemOrderDTO.getQuantity() == 0) {
+                itemOrderToUpdate.setQuantity(1);
+            }
+        }
+
+        itemOrderToUpdate.calculateSubTotalPrice();
         this.repository.save(itemOrderToUpdate);
 
         return new ResponseEntity<>("Item do Pedido atualizado com sucesso.", HttpStatus.OK);

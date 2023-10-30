@@ -16,12 +16,10 @@ public class ItemOrderDTO {
 
     private BigDecimal subTotalPrice;
 
-    public ItemOrderDTO(Long id, Long product_id, int quantity, BigDecimal unitPrice) {
+    public ItemOrderDTO(Long id, Long product_id, int quantity) {
         this.id = id;
         this.product_id = product_id;
         this.quantity = quantity;
-        this.unitPrice = unitPrice;
-        this.subTotalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity));
     }
 
     public ItemOrderDTO(ItemOrder itemOrder) {
@@ -29,7 +27,7 @@ public class ItemOrderDTO {
         this.product_id = itemOrder.getProduct().getId();
         this.quantity = itemOrder.getQuantity();
         this.unitPrice = itemOrder.getUnitPrice();
-        this.subTotalPrice = itemOrder.calculateSubTotalPrice();
+        this.subTotalPrice = itemOrder.getSubTotalPrice();
     }
 
     public Long getId() {
