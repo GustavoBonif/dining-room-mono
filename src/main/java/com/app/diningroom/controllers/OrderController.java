@@ -7,27 +7,27 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import com.app.diningroom.dto.ItemOrderDTO;
-import com.app.diningroom.services.ItemOrderService;
+import com.app.diningroom.dto.OrdersDTO;
+import com.app.diningroom.services.OrdersService;
 
 @RestController
-@RequestMapping("/itemsOrder")
-public class ItemOrderController {
-    private ItemOrderService service;
+@RequestMapping("/orders")
+public class OrderController {
+    private OrdersService service;
 
     @Autowired
-    public ItemOrderController(ItemOrderService service) {
+    public OrderController(OrdersService service) {
         this.service = service;
     }
 
     @GetMapping("/listAll")
-    public List<ItemOrderDTO> listAll() {
+    public List<OrdersDTO> listAll() {
         return service.listAll();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
-        ResponseEntity<ItemOrderDTO> response = service.findById(id);
+        ResponseEntity<OrdersDTO> response = service.findById(id);
 
         if (response.getStatusCode() == HttpStatus.OK) {
             return response;
@@ -37,18 +37,19 @@ public class ItemOrderController {
     }
 
     @PostMapping
-    public ResponseEntity<String> create(@RequestBody ItemOrderDTO itemOrderDTO) {
-        return service.mountNewItemOrder(itemOrderDTO);
+    public ResponseEntity<String> create(@RequestBody OrdersDTO ordersDTO) {
+        Long newOrderId = service.create(ordersDTO);
+
+        return new ResponseEntity<>("Sucesso ao criar o pedido de ID: " + newOrderId, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<String> update(@PathVariable Long id, @RequestBody ItemOrderDTO itemOrderDTO) {
-        return service.update(id, itemOrderDTO);
-    }
+//    @PatchMapping("/{id}")
+//    public ResponseEntity<String> update(@PathVariable Long id, @RequestBody OrderDTO orderDTO) {
+//        return service.update(id, orderDTO);
+//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id) {
         return service.delete(id);
     }
 }
-

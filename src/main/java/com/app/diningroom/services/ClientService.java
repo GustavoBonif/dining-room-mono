@@ -69,6 +69,16 @@ public class ClientService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public boolean existsById(Long id) {
+        return repository.existsById(id);
+    }
+
+    @Transactional
+    public Client findEntityById(Long id) {
+        return repository.findById(id).get();
+    }
+
     private ClientDTO clientToClientDTO(Client client) {
         return new ClientDTO(client);
     }

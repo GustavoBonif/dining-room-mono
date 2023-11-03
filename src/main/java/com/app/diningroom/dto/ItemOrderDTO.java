@@ -7,27 +7,26 @@ import com.app.diningroom.entities.ItemOrder;
 public class ItemOrderDTO {
 
     private Long id;
-
     private Long product_id;
-
     private int quantity;
-
     private BigDecimal unitPrice;
-
     private BigDecimal subTotalPrice;
+    private Long orders_id;
+    private Long client_id;
 
-    public ItemOrderDTO(Long id, Long product_id, int quantity) {
+    public ItemOrderDTO(Long id, Long product_id, int quantity, Long client_id) {
         this.id = id;
         this.product_id = product_id;
         this.quantity = quantity;
+        this.client_id = client_id;
     }
 
-    public ItemOrderDTO(ItemOrder itemOrder) {
-        this.id = itemOrder.getId();
-        this.product_id = itemOrder.getProduct().getId();
-        this.quantity = itemOrder.getQuantity();
-        this.unitPrice = itemOrder.getUnitPrice();
-        this.subTotalPrice = itemOrder.getSubTotalPrice();
+    public ItemOrderDTO(ItemOrder itemOrders) {
+        this.id = itemOrders.getId();
+        this.product_id = itemOrders.getProduct().getId();
+        this.quantity = itemOrders.getQuantity();
+        this.unitPrice = itemOrders.getUnitPrice();
+        this.subTotalPrice = itemOrders.getSubTotalPrice();
     }
 
     public Long getId() {
@@ -68,5 +67,21 @@ public class ItemOrderDTO {
 
     public void setSubTotalPrice(BigDecimal subTotalPrice) {
         this.subTotalPrice = subTotalPrice;
+    }
+
+    public Long getOrders_id() {
+        return orders_id;
+    }
+
+    public void setOrders_id(Long order_id) {
+        this.orders_id = order_id;
+    }
+
+    public Long getClient_id() {
+        return client_id;
+    }
+
+    public void setClient_id(Long client_id) {
+        this.client_id = client_id;
     }
 }

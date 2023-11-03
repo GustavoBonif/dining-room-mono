@@ -1,6 +1,9 @@
 package com.app.diningroom.dto;
 
+import java.util.List;
+
 import com.app.diningroom.entities.Client;
+import com.app.diningroom.entities.Orders;
 
 public class ClientDTO {
 
@@ -9,13 +12,17 @@ public class ClientDTO {
     private String address;
     private String email;
     private String phone;
+    private List<ItemOrderDTO> itemsOrder;
+    private List<Orders> orders;
 
-    public ClientDTO(Long id, String name, String address, String email, String phone) {
+    public ClientDTO(Long id, String name, String address, String email, String phone, List<ItemOrderDTO> itemsOrder, List<Orders> orders) {
         this.id = id;
         this.name = name;
         this.address = address;
         this.email = email;
         this.phone = phone;
+        this.itemsOrder = itemsOrder;
+        this.orders = orders;
     }
 
     public ClientDTO(Client client) {
@@ -24,6 +31,7 @@ public class ClientDTO {
         this.address = client.getAddress();
         this.email = client.getEmail();
         this.phone = client.getPhone();
+//        this.itemsOrder = client.getItemsOrder();
     }
 
     public Long getId() {
@@ -64,5 +72,21 @@ public class ClientDTO {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public List<ItemOrderDTO> getItemsOrder() {
+        return itemsOrder;
+    }
+
+    public void setItemsOrder(List<ItemOrderDTO> itemsOrder) {
+        this.itemsOrder = itemsOrder;
+    }
+
+    public List<Orders> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Orders> orders) {
+        this.orders = orders;
     }
 }

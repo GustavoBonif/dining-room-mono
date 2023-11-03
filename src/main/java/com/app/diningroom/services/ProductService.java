@@ -34,11 +34,6 @@ public class ProductService {
     }
 
     @Transactional
-    public Product findEntityById(Long id) {
-        return productRepository.findById(id).get();
-    }
-
-    @Transactional
     public ProductDTO create(ProductDTO productDTO) {
         this.checkEmptyRequiredFields(productDTO);
 
@@ -98,6 +93,16 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public Product findEntityById(Long id) {
+        return productRepository.findById(id).get();
+    }
+
+    @Transactional
+    public boolean existsById(Long id) {
+        return productRepository.existsById(id);
+    }
+
     private void checkEmptyRequiredFields(ProductDTO productDTO) {
        if (productDTO.getName() == null || productDTO.getName().isEmpty()) {
            throw new IllegalArgumentException("O campo 'nome' deve ser preenchido.");
@@ -128,11 +133,6 @@ public class ProductService {
 
     private ProductDTO productToProductDTO(Product product) {
         return new ProductDTO(product);
-    }
-
-    @Transactional
-    public boolean existsById(Long id) {
-        return productRepository.existsById(id);
     }
 
 }

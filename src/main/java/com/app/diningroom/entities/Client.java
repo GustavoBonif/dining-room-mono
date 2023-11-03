@@ -2,6 +2,8 @@ package com.app.diningroom.entities;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "client")
 public class Client {
@@ -15,6 +17,12 @@ public class Client {
     private String address;
     private String email;
     private String phone;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<ItemOrder> itemsOrder;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<Orders> order;
 
     public Long getId() {
         return id;
@@ -54,5 +62,13 @@ public class Client {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public List<ItemOrder> getItemsOrder() {
+        return itemsOrder;
+    }
+
+    public void setItemsOrder(List<ItemOrder> itemsOrder) {
+        this.itemsOrder = itemsOrder;
     }
 }
