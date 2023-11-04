@@ -38,6 +38,7 @@ public class OrdersDTO {
         this.dateTime = orders.getDateTime();
         this.totalPrice = orders.getTotalPrice();
 //        this.itemsOrder = orders.getItemsOrder();
+        this.client_id = orders.getClient().getId();
     }
 
     public Long getId() {

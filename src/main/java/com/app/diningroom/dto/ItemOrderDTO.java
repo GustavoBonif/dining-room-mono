@@ -27,6 +27,8 @@ public class ItemOrderDTO {
         this.quantity = itemOrders.getQuantity();
         this.unitPrice = itemOrders.getUnitPrice();
         this.subTotalPrice = itemOrders.getSubTotalPrice();
+        this.client_id = itemOrders.getClient().getId();
+        this.orders_id = itemOrders.getOrders().getId();
     }
 
     public Long getId() {

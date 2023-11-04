@@ -43,10 +43,10 @@ public class OrderController {
         return new ResponseEntity<>("Sucesso ao criar o pedido de ID: " + newOrderId, HttpStatus.CREATED);
     }
 
-//    @PatchMapping("/{id}")
-//    public ResponseEntity<String> update(@PathVariable Long id, @RequestBody OrderDTO orderDTO) {
-//        return service.update(id, orderDTO);
-//    }
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> update(@PathVariable Long id, @RequestBody OrdersDTO orderDTO) {
+        return service.update(id, orderDTO);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id) {

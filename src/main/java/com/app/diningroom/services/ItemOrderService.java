@@ -40,8 +40,6 @@ public class ItemOrderService {
         if (optionalItemOrder.isPresent()) {
             ItemOrder entity = optionalItemOrder.get();
             ItemOrderDTO dto = new ItemOrderDTO(entity);
-            dto.setOrders_id(entity.getOrders().getId());
-            dto.setClient_id(entity.getClient().getId());
             return new ResponseEntity<>(dto, HttpStatus.OK);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -92,7 +90,7 @@ public class ItemOrderService {
     @Transactional
     public ResponseEntity<String> update(Long id, ItemOrderDTO itemOrderDTO) {
         if(!this.repository.existsById(id)) {
-            return new ResponseEntity<>("Item do Pedido " + id + " não encontrado.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(" Pedido " + id + " não encontrado.", HttpStatus.NOT_FOUND);
         }
 
         if(itemOrderDTO.getProduct_id() != null && !this.productService.existsById(itemOrderDTO.getProduct_id())) {
