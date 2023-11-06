@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -125,6 +127,62 @@ public class OrdersService {
     }
 
     @Transactional
+    public void addItemOrderinOrder(Long orderId, ItemOrder newItemOrder) {
+        Orders order = ordersRepository.findById(orderId).get();
+        BigDecimal orderCurrentTotalPrice = order.getTotalPrice();
+        BigDecimal newItemOrderSubTotalPrice = newItemOrder.getSubTotalPrice();
+        order.setTotalPrice(orderCurrentTotalPrice.add(newItemOrderSubTotalPrice));
+        order.setDateTime(LocalDateTime.now());
+
+        ordersRepository.save(order);
+
+    }
+
+    @Transactional
+    public ResponseEntity<String> deleteItemOrderFromOrder(ItemOrder itemOrder) {
+        Orders order = itemOrder.getOrders();
+
+        if (order == null || !ordersRepository.existsById(order.getId())) {
+            return new ResponseEntity<>("Pedido não encontrado.", HttpStatus.NOT_FOUND);
+        }
+
+        BigDecimal orderCurrentTotalPrice = order.getTotalPrice();
+        BigDecimal itemOrderSubTotalPrice = itemOrder.getSubTotalPrice();
+        BigDecimal newTotalPrice = orderCurrentTotalPrice.subtract(itemOrderSubTotalPrice);
+        order.setTotalPrice(newTotalPrice);
+
+        ordersRepository.save(order);
+        return ResponseEntity.ok("ItemOrder removido com sucesso.");
+    }
+
+    @Transactional
+    public void updateItemOrderInOrder(ItemOrder itemOrderToUpdate) {
+        Orders order = itemOrderToUpdate.getOrders();
+
+        if (order != null || ordersRepository.existsById(order.getId())) {
+            order.setTotalPrice(itemOrderToUpdate.getSubTotalPrice());
+        }
+
+        BigDecimal newTotalPrice = this.calculateTotalSubTotalPrice(order.getId());
+        order.setTotalPrice(newTotalPrice);
+
+    }
+
+
+    public BigDecimal calculateTotalSubTotalPrice(Long orderId) {
+        Orders order = ordersRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado com ID: " + orderId));
+
+        BigDecimal totalSubTotalPrice = BigDecimal.ZERO;
+
+        for (ItemOrder itemOrder : order.getItemsOrder()) {
+            totalSubTotalPrice = totalSubTotalPrice.add(itemOrder.getSubTotalPrice());
+        }
+
+        return totalSubTotalPrice;
+    }
+
+    @Transactional
     public Orders findEntityById(Long id) {
         return ordersRepository.findById(id).get();
     }
@@ -132,5 +190,6 @@ public class OrdersService {
     public OrdersDTO entityToDTO(Orders order) {
         return new OrdersDTO(order);
     }
+
 
 }

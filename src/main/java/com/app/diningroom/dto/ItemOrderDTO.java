@@ -14,6 +14,10 @@ public class ItemOrderDTO {
     private Long orders_id;
     private Long client_id;
 
+    public ItemOrderDTO() {
+
+    }
+
     public ItemOrderDTO(Long id, Long product_id, int quantity, Long client_id) {
         this.id = id;
         this.product_id = product_id;
