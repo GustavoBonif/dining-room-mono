@@ -6,8 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 import com.app.diningroom.dto.OrdersDTO;
+import com.app.diningroom.enums.PaymentMethod;
 import com.app.diningroom.services.OrdersService;
 
 @RestController
@@ -41,6 +43,14 @@ public class OrderController {
         Long newOrderId = service.create(ordersDTO);
 
         return new ResponseEntity<>("Sucesso ao criar o pedido de ID: " + newOrderId, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/pay/{orderId}")
+    public ResponseEntity<String> payOrder(@PathVariable Long orderId, @RequestBody Map<String, String> requestBody) {
+        String paymentMethodStr = requestBody.get("paymentMethod");
+
+        PaymentMethod paymentMethod = PaymentMethod.valueOf(paymentMethodStr);
+        return service.payOrder(orderId, paymentMethod);
     }
 
     @DeleteMapping("/{id}")

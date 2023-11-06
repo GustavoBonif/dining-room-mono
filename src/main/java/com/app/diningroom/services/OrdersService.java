@@ -17,6 +17,7 @@ import com.app.diningroom.dto.ItemOrderDTO;
 import com.app.diningroom.dto.OrdersDTO;
 import com.app.diningroom.entities.ItemOrder;
 import com.app.diningroom.entities.Orders;
+import com.app.diningroom.enums.PaymentMethod;
 import com.app.diningroom.repositories.ItemOrderRepository;
 import com.app.diningroom.repositories.OrdersRepository;
 
@@ -191,5 +192,29 @@ public class OrdersService {
         return new OrdersDTO(order);
     }
 
+    @Transactional
+    public ResponseEntity<String> payOrder(Long orderId, PaymentMethod paymentMethod) {
+
+        if(!ordersRepository.existsById(orderId)) {
+            return new ResponseEntity<>("Pedido não encontrado com ID: " + orderId, HttpStatus.NOT_FOUND);
+        }
+
+        Orders order = ordersRepository.findById(orderId).get();
+                        // Verifica se o pedido já está pago
+        if(order.isPaid()) {
+            return new ResponseEntity<>("Pedido já foi pago.", HttpStatus.BAD_REQUEST);
+        }
+
+        // Salva o método de pagamento na entidade Orders
+        order.setPaymentMethod(paymentMethod);
+
+        // Marca o pedido como pago (paid = true)
+        order.setPaid(true);
+
+        // Salva as alterações no repositório
+        ordersRepository.save(order);
+
+        return ResponseEntity.ok("Pedido pago com sucesso.");
+    }
 
 }
