@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.app.diningroom.dto.ProductDTO;
+import com.app.diningroom.dto.StockDTO;
 import com.app.diningroom.entities.Brand;
 import com.app.diningroom.entities.Product;
 import com.app.diningroom.repositories.ProductRepository;
@@ -22,10 +23,16 @@ import com.app.diningroom.repositories.ProductRepository;
 @Service
 public class ProductService {
 
+    private final ProductRepository productRepository;
+    private final BrandService brandService;
+    private final StockService stockService;
+
     @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private BrandService brandService;
+    public ProductService(ProductRepository productRepository, BrandService brandService, StockService stockService) {
+        this.productRepository = productRepository;
+        this.brandService = brandService;
+        this.stockService = stockService;
+    }
 
     @Transactional
     public ProductDTO findById(Long id) {
@@ -49,8 +56,17 @@ public class ProductService {
         }
 
         Product productUpdated = productRepository.save(newProduct);
+        ProductDTO productUpdatedDTO = new ProductDTO(productUpdated);
 
-        return new ProductDTO(productUpdated);
+        try{
+            StockDTO stockDTO = new StockDTO();
+            stockDTO.setProduct_id(productUpdated.getId());
+            stockService.mountNewStockFromNewProduct(stockDTO);
+        }catch(IllegalArgumentException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+
+        return productUpdatedDTO;
     }
 
     @Transactional

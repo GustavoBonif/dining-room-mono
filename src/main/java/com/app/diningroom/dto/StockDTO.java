@@ -10,6 +10,10 @@ public class StockDTO {
 
     private int quantityAvailable;
 
+    public StockDTO() {
+
+    }
+
     public StockDTO(Long id, Long product_id, int quantityAvailable) {
         this.id = id;
         this.product_id = product_id;

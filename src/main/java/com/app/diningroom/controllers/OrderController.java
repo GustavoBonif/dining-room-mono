@@ -57,4 +57,14 @@ public class OrderController {
     public ResponseEntity<String> delete(@PathVariable Long id) {
         return service.delete(id);
     }
+
+    @GetMapping(value = "/listUnpaidOrders/{clientId}")
+    public List<OrdersDTO> listUnpaidOrders(@PathVariable Long clientId) {
+        return service.listUnpaidOrders(clientId);
+    }
+
+    @GetMapping(value = "/listPaidOrders/{clientId}")
+    public List<OrdersDTO> listPaidOrders(@PathVariable Long clientId) {
+        return service.listPaidOrders(clientId);
+    }
 }

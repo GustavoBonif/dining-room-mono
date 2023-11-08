@@ -16,10 +16,7 @@ import java.util.stream.Collectors;
 
 import com.app.diningroom.dto.ItemOrderDTO;
 import com.app.diningroom.dto.OrdersDTO;
-import com.app.diningroom.entities.Client;
-import com.app.diningroom.entities.ItemOrder;
-import com.app.diningroom.entities.Orders;
-import com.app.diningroom.entities.Product;
+import com.app.diningroom.entities.*;
 import com.app.diningroom.repositories.ItemOrderRepository;
 
 @Service
@@ -33,6 +30,8 @@ public class ItemOrderService {
     private OrdersService ordersService;
     @Autowired
     private ClientService clientService;
+    @Autowired
+    private StockService stockService;
 
     public ResponseEntity<ItemOrderDTO> findById(Long id) {
         Optional<ItemOrder> optionalItemOrder = repository.findById(id);
@@ -61,6 +60,12 @@ public class ItemOrderService {
 
         if(!this.clientService.existsById(itemOrderDTOparam.getClient_id())) {
             return new ResponseEntity<>("Cliente de ID " + itemOrderDTOparam.getProduct_id() + " não encontrado.", HttpStatus.NOT_FOUND);
+        }
+
+        try{
+            stockService.updateStockByProduct(itemOrderDTOparam.getProduct_id(), itemOrderDTOparam.getQuantity());
+        }catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
 
         Product product = productService.findEntityById(itemOrderDTOparam.getProduct_id());
@@ -106,6 +111,12 @@ public class ItemOrderService {
         }
 
         ItemOrder itemOrderToUpdate = this.repository.findById(id).get();
+
+        try{
+            stockService.updateStockByProduct(itemOrderToUpdate.getProduct().getId(), itemOrderDTO.getQuantity());
+        }catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
 
         BeanUtils.copyProperties(itemOrderDTO, itemOrderToUpdate, this.getNullPropertyNames(itemOrderDTO));
 

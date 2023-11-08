@@ -189,4 +189,20 @@ public class OrdersService {
 
         return ResponseEntity.ok("Pedido pago com sucesso.");
     }
+
+    public List<OrdersDTO> listUnpaidOrders(Long clientId) {
+        List<Orders> unpaidOrders = ordersRepository.findByClientIdAndPaid(clientId, false);
+
+        return unpaidOrders.stream()
+                .map(this::convertToOrdersDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<OrdersDTO> listPaidOrders(Long clientId) {
+        List<Orders> unpaidOrders = ordersRepository.findByClientIdAndPaid(clientId, true);
+
+        return unpaidOrders.stream()
+                .map(this::convertToOrdersDTO)
+                .collect(Collectors.toList());
+    }
 }
