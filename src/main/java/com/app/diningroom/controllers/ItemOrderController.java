@@ -38,7 +38,7 @@ public class ItemOrderController {
 
     @PostMapping
     public ResponseEntity<String> create(@RequestBody ItemOrderDTO itemOrderDTO) {
-        return service.create(itemOrderDTO);
+        return service.mountNewItemOrder(itemOrderDTO);
     }
 
     @PatchMapping("/{id}")

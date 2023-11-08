@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "itemOrder")
 public class ItemOrder {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,18 +19,18 @@ public class ItemOrder {
     @Column(nullable = false)
     private int quantity;
 
-//    @Column(nullable = false)
+    //    @Column(nullable = false)
     private BigDecimal unitPrice;
 
     private BigDecimal subTotalPrice;
 
-    public ItemOrder(Long id, Product product, int quantity, BigDecimal unitPrice, BigDecimal subTotalPrice) {
-        this.id = id;
-        this.product = product;
-        this.quantity = quantity;
-        this.unitPrice = unitPrice;
-        this.subTotalPrice = subTotalPrice;
-    }
+    @ManyToOne
+    @JoinColumn(name = "client_id")
+    private Client client;
+
+    @ManyToOne
+    @JoinColumn(name = "orders_id", nullable = false)
+    private Orders orders;
 
     public ItemOrder() {
 
@@ -73,6 +74,22 @@ public class ItemOrder {
 
     public void setSubTotalPrice(BigDecimal subTotalPrice) {
         this.subTotalPrice = subTotalPrice;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public Orders getOrders() {
+        return orders;
+    }
+
+    public void setOrders(Orders orders) {
+        this.orders = orders;
     }
 
     public void calculateSubTotalPrice() {

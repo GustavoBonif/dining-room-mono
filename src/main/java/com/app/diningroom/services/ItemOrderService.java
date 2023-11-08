@@ -10,14 +10,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.beans.PropertyDescriptor;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.app.diningroom.dto.ItemOrderDTO;
+import com.app.diningroom.dto.OrdersDTO;
+import com.app.diningroom.entities.Client;
 import com.app.diningroom.entities.ItemOrder;
+import com.app.diningroom.entities.Orders;
 import com.app.diningroom.entities.Product;
 import com.app.diningroom.repositories.ItemOrderRepository;
 
@@ -28,6 +29,10 @@ public class ItemOrderService {
     private ItemOrderRepository repository;
     @Autowired
     private ProductService productService;
+    @Autowired
+    private OrdersService ordersService;
+    @Autowired
+    private ClientService clientService;
 
     public ResponseEntity<ItemOrderDTO> findById(Long id) {
         Optional<ItemOrder> optionalItemOrder = repository.findById(id);
@@ -48,35 +53,44 @@ public class ItemOrderService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public ResponseEntity<String> create(ItemOrderDTO itemOrderDTO) {
+    public ResponseEntity<String> mountNewItemOrder(ItemOrderDTO itemOrderDTOparam) {
 
-        if(!this.productService.existsById(itemOrderDTO.getProduct_id())) {
-            return new ResponseEntity<>("Produto de ID " + itemOrderDTO.getProduct_id() + " não encontrado.", HttpStatus.NOT_FOUND);
+        if(!this.productService.existsById(itemOrderDTOparam.getProduct_id())) {
+            return new ResponseEntity<>("Produto de ID " + itemOrderDTOparam.getProduct_id() + " não encontrado.", HttpStatus.NOT_FOUND);
         }
 
-        Product product = productService.findEntityById(itemOrderDTO.getProduct_id());
+        if(!this.clientService.existsById(itemOrderDTOparam.getClient_id())) {
+            return new ResponseEntity<>("Cliente de ID " + itemOrderDTOparam.getProduct_id() + " não encontrado.", HttpStatus.NOT_FOUND);
+        }
+
+        Product product = productService.findEntityById(itemOrderDTOparam.getProduct_id());
+        Client client = clientService.findEntityById(itemOrderDTOparam.getClient_id());
 
         ItemOrder newItemOrder = new ItemOrder();
-        newItemOrder.setQuantity(itemOrderDTO.getQuantity());
+        newItemOrder.setQuantity(itemOrderDTOparam.getQuantity());
         newItemOrder.setProduct(product);
         newItemOrder.setUnitPrice(product.getPrice());
-
         newItemOrder.calculateSubTotalPrice();
+        newItemOrder.setClient(client);
 
-//        // Adiciona itemOrder em Order
-//        Order order = orderService.findOrderById(1L);
-//        newItemOrder.setOrder(order);
+        Orders order = this.createOrderIfNotExists(itemOrderDTOparam, newItemOrder);
 
-        repository.save(newItemOrder);
+        newItemOrder.setOrders(order);
 
-        return new ResponseEntity<>("Estoque criado com sucesso.", HttpStatus.CREATED);
+        this.create(newItemOrder);
+
+        return new ResponseEntity<>("Item Pedido criado com sucesso.", HttpStatus.CREATED);
+    }
+
+    @Transactional
+    public void create(ItemOrder itemOrder) {
+        repository.save(itemOrder);
     }
 
     @Transactional
     public ResponseEntity<String> update(Long id, ItemOrderDTO itemOrderDTO) {
         if(!this.repository.existsById(id)) {
-            return new ResponseEntity<>("Item do Pedido " + id + " não encontrado.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(" Pedido " + id + " não encontrado.", HttpStatus.NOT_FOUND);
         }
 
         if(itemOrderDTO.getProduct_id() != null && !this.productService.existsById(itemOrderDTO.getProduct_id())) {
@@ -104,8 +118,10 @@ public class ItemOrderService {
                 itemOrderToUpdate.setQuantity(1);
             }
         }
-
         itemOrderToUpdate.calculateSubTotalPrice();
+
+        ordersService.updateItemOrderInOrder(itemOrderToUpdate);
+
         this.repository.save(itemOrderToUpdate);
 
         return new ResponseEntity<>("Item do Pedido atualizado com sucesso.", HttpStatus.OK);
@@ -116,11 +132,53 @@ public class ItemOrderService {
         Optional<ItemOrder> optionalItemOrder = this.repository.findById(id);
 
         if (optionalItemOrder.isPresent()) {
+            ItemOrder itemOrder = optionalItemOrder.get();
+
+            ResponseEntity<String> responseOrder = ordersService.deleteItemOrderFromOrder(itemOrder);
+
+            if (responseOrder.getStatusCode() == HttpStatus.NOT_FOUND) {
+                return responseOrder;
+            }
+
             this.repository.deleteById(id);
             return new ResponseEntity<>("Item do Pedido deletado com sucesso.", HttpStatus.OK);
+
         } else {
             return new ResponseEntity<>("Item do Pedido com ID " + id + " não encontrado.", HttpStatus.NOT_FOUND);
         }
+    }
+
+    @Transactional
+    public Orders createOrderIfNotExists(ItemOrderDTO itemOrderDTOparam, ItemOrder newItemOrder) {
+        OrdersDTO orderDTO = ordersService.findByClientIdAndPaid(itemOrderDTOparam.getClient_id());
+
+        if(orderDTO == null) {
+            OrdersDTO newOrderDTO = new OrdersDTO();
+            newOrderDTO.setPaid(false);
+            newOrderDTO.setDateTime(LocalDateTime.now());
+            newOrderDTO.setClient_id(itemOrderDTOparam.getClient_id());
+            newOrderDTO.setTotalPrice(newItemOrder.getSubTotalPrice());
+
+            ItemOrderDTO newItemOrderDTO = new ItemOrderDTO();
+            newItemOrderDTO.setProduct_id(newItemOrderDTO.getProduct_id());
+            newItemOrderDTO.setQuantity(newItemOrder.getQuantity());
+            newItemOrderDTO.setUnitPrice(newItemOrder.getUnitPrice());
+            newItemOrderDTO.setSubTotalPrice(newItemOrder.getSubTotalPrice());
+            newItemOrderDTO.setClient_id(newItemOrder.getClient().getId());
+
+            List<ItemOrderDTO> newList = new ArrayList<>();
+            newList.add(newItemOrderDTO);
+            newOrderDTO.setItemsOrder(newList);
+
+            Long newOrderId = ordersService.create(newOrderDTO);
+
+            Orders newOrder = ordersService.findEntityById(newOrderId);
+            orderDTO = ordersService.entityToDTO(newOrder);
+        } else {
+            ordersService.addItemOrderinOrder(orderDTO.getId(), newItemOrder);
+        }
+
+        return ordersService.findEntityById(orderDTO.getId());
     }
 
     private String[] getNullPropertyNames(Object source) {
@@ -140,5 +198,4 @@ public class ItemOrderService {
     private ItemOrderDTO itemOrderToItemOrderDTO(ItemOrder itemOrder) {
         return new ItemOrderDTO(itemOrder);
     }
-
 }
