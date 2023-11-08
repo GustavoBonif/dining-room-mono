@@ -102,4 +102,22 @@ public class StockService {
     private StockDTO stockToStockDTO(Stock stock) {
         return new StockDTO(stock);
     }
+
+    public void updateStockByProduct(Long productId, int quantityOrdered) {
+        Stock stock = stockRepository.findByProductId(productId);
+
+        if (stock != null) {
+            int currentQuantityAvailable = stock.getQuantityAvailable();
+            int updatedQuantityAvailable = currentQuantityAvailable - quantityOrdered;
+
+            if (updatedQuantityAvailable >= 0) {
+                stock.setQuantityAvailable(updatedQuantityAvailable);
+                stockRepository.save(stock);
+            } else {
+                throw new IllegalArgumentException("Quantidade insuficiente em estoque para o produto com ID " + productId);
+            }
+        } else {
+            throw new IllegalArgumentException("Produto com ID " + productId + " não encontrado em estoque");
+        }
+    }
 }
