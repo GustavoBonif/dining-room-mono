@@ -31,7 +31,7 @@ public class StockController {
 
     @PostMapping
     public ResponseEntity<String> createStock(@RequestBody StockDTO stockDTO) {
-        return service.createStock(stockDTO);
+        return service.mountNewStock(stockDTO);
     }
 
     @PatchMapping("/{id}")

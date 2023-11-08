@@ -5,6 +5,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,14 @@ import com.app.diningroom.repositories.StockRepository;
 @Service
 public class StockService {
 
+    private final StockRepository stockRepository;
+    private final ProductService productService;
+
     @Autowired
-    private StockRepository stockRepository;
-    @Autowired
-    private ProductService productService;
+    public StockService(StockRepository stockRepository,@Lazy ProductService productService) {
+        this.stockRepository = stockRepository;
+        this.productService = productService;
+    }
 
     @Transactional
     public ResponseEntity<StockDTO> findById(Long id) {
@@ -44,8 +49,7 @@ public class StockService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public ResponseEntity<String> createStock(StockDTO stockDTO) {
+    public ResponseEntity<String> mountNewStock(StockDTO stockDTO) {
         if(!this.productService.existsById(stockDTO.getProduct_id())) {
             return new ResponseEntity<>("Produto com ID " + stockDTO.getProduct_id() + " não encontrado", HttpStatus.NOT_FOUND);
         }
@@ -54,9 +58,25 @@ public class StockService {
         newStock.setProduct(productService.findEntityById(stockDTO.getProduct_id()));
         newStock.setQuantityAvailable(stockDTO.getQuantityAvailable());
 
-        this.stockRepository.save(newStock);
+        this.create(newStock);
 
         return new ResponseEntity<>("Estoque criado com sucesso.", HttpStatus.CREATED);
+    }
+
+    public void mountNewStockFromNewProduct(StockDTO stockDTO) {
+        if (!this.productService.existsById(stockDTO.getProduct_id())) {
+            throw new IllegalArgumentException("Produto com o id " + stockDTO.getProduct_id() + " não existe.");
+        }
+        Stock newStock = new Stock();
+        newStock.setProduct(productService.findEntityById(stockDTO.getProduct_id()));
+        newStock.setQuantityAvailable(10);
+
+        this.create(newStock);
+    }
+
+    @Transactional
+    public void create(Stock newStock) {
+        this.stockRepository.save(newStock);
     }
 
     @Transactional
