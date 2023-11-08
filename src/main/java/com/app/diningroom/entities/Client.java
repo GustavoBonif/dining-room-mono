@@ -22,7 +22,7 @@ public class Client {
     private List<ItemOrder> itemsOrder;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
-    private List<Orders> order;
+    private List<Orders> orders;
 
     public Long getId() {
         return id;
@@ -70,5 +70,13 @@ public class Client {
 
     public void setItemsOrder(List<ItemOrder> itemsOrder) {
         this.itemsOrder = itemsOrder;
+    }
+
+    public List<Orders> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Orders> orders) {
+        this.orders = orders;
     }
 }

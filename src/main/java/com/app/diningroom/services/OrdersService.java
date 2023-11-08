@@ -1,6 +1,5 @@
 package com.app.diningroom.services;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -76,22 +75,6 @@ public class OrdersService {
         Orders newOrder = ordersRepository.save(newOrders);
 
         return newOrder.getId();
-
-//        return new ResponseEntity<>("Pedido criado com sucesso.", HttpStatus.OK);
-    }
-
-    @Transactional
-    public ResponseEntity<String> update(Long id, OrdersDTO orderDTO) {
-        Orders pedidoEntity = ordersRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pedido with ID " + id + " not found."));
-
-//        pedidoEntity.setItensPedido(itemPedidoService.criarItensPedido(pedidoDTO.getItensPedido(), pedidoEntity));
-//        pedidoEntity.setPago(pedidoDTO.isPago());
-        pedidoEntity.setPaymentMethod(orderDTO.getPaymentMethod());
-
-        ordersRepository.save(pedidoEntity);
-
-        return new ResponseEntity<>("Item do Pedido atualizado com sucesso.", HttpStatus.OK);
     }
 
     @Transactional
@@ -121,9 +104,8 @@ public class OrdersService {
 
         List<ItemOrder> itensPedido = order.getItemsOrder();
 
-        // Converte os itens para DTOs se necessário
         return itensPedido.stream()
-                .map(ItemOrderDTO::new)  // Suponhamos que você tenha um construtor em ItemPedidoDTO que aceita ItemPedidoEntity
+                .map(ItemOrderDTO::new)
                 .collect(Collectors.toList());
     }
 
@@ -136,7 +118,6 @@ public class OrdersService {
         order.setDateTime(LocalDateTime.now());
 
         ordersRepository.save(order);
-
     }
 
     @Transactional
@@ -166,9 +147,7 @@ public class OrdersService {
 
         BigDecimal newTotalPrice = this.calculateTotalSubTotalPrice(order.getId());
         order.setTotalPrice(newTotalPrice);
-
     }
-
 
     public BigDecimal calculateTotalSubTotalPrice(Long orderId) {
         Orders order = ordersRepository.findById(orderId)
@@ -200,21 +179,14 @@ public class OrdersService {
         }
 
         Orders order = ordersRepository.findById(orderId).get();
-                        // Verifica se o pedido já está pago
         if(order.isPaid()) {
             return new ResponseEntity<>("Pedido já foi pago.", HttpStatus.BAD_REQUEST);
         }
 
-        // Salva o método de pagamento na entidade Orders
         order.setPaymentMethod(paymentMethod);
-
-        // Marca o pedido como pago (paid = true)
         order.setPaid(true);
-
-        // Salva as alterações no repositório
         ordersRepository.save(order);
 
         return ResponseEntity.ok("Pedido pago com sucesso.");
     }
-
 }

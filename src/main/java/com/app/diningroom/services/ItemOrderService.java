@@ -77,7 +77,7 @@ public class ItemOrderService {
 
         newItemOrder.setOrders(order);
 
-        repository.save(newItemOrder);
+        repository.save(newItemOrder);// mudar para this.create
 
         return new ResponseEntity<>("Item Pedido criado com sucesso.", HttpStatus.CREATED);
     }
@@ -198,5 +198,4 @@ public class ItemOrderService {
     private ItemOrderDTO itemOrderToItemOrderDTO(ItemOrder itemOrder) {
         return new ItemOrderDTO(itemOrder);
     }
-
 }
