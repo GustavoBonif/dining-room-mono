@@ -77,7 +77,7 @@ public class ItemOrderService {
 
         newItemOrder.setOrders(order);
 
-        repository.save(newItemOrder);// mudar para this.create
+        this.create(newItemOrder);
 
         return new ResponseEntity<>("Item Pedido criado com sucesso.", HttpStatus.CREATED);
     }
