@@ -2,6 +2,15 @@ Projeto Dining-Room | Arquitetura Monolítica
 
 Este repositório contém a aplicação Dining-Room desenvolvido com arquitetura monolítica para o meu Trabalho de Conclusão de Curso (TCC) entitulado "ANÁLISE COMPARATIVA ENTRE ARQUITETURA DE SISTEMA MONOLÍTICO E MICROSSERVIÇO: DESEMPENHO E CONSUMO DE RECURSO".
 
+A versão com arquitetura de microsserviços está distribuída nos seguintes repositórios:
+
+Eureka-Server: https://github.com/GustavoBonif/dining-room-eureka-server
+User-Registry: https://github.com/GustavoBonif/dining-room-user-registry
+Catalog: https://github.com/GustavoBonif/dining-room-catalog
+Warehouse: https://github.com/GustavoBonif/dining-room-warehouse
+Cart: https://github.com/GustavoBonif/dining-room-cart
+Gateway: https://github.com/GustavoBonif/dining-room-gateway 
+
 O projeto é um _ecommerce_ simples, com apenas o _backend_, e tem como objetivo comparar o tempo do resposta e o consumo de CPU das instâncias EC2 na AWS de cada aplicação.
 
 As tecnologias empregadas foram:
